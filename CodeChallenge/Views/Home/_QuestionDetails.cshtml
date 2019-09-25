@@ -1,0 +1,39 @@
+﻿@model CodeChallenge.Models.StackOverflowQuestionVM
+@using CodeChallenge.Helpers
+
+<div class="row">
+    <div class="col-sm-2"></div>
+    <div class="col-md-8">
+        @Html.Raw(Model.body)
+    </div>
+    <div class="col-sm-2"></div>
+</div>
+<hr/>
+<h1><b>Answers:</b></h1> double click an answer to vote
+
+@if (Model.answers != null && Model.answers.Count() > 0)
+{
+    foreach (var answer in Model.answers)
+    {
+        <div class="row answer-row" id="@answer.answer_id" data-question="@Model.question_id">
+            <div class="col-sm-2" id="result-@answer.answer_id">
+                @if(answer.selected_answer != null && answer.selected_answer.Value)
+                {
+                    <span>Correct!</span>
+                }else if (answer.selected_answer != null && !answer.selected_answer.Value)
+                {
+                    <span>Incorrect!</span>
+                }
+
+                @if(answer.selected_answer != null)
+                {
+                    <span>Guesses: @answer.guess_count</span>
+                    <span>Percentage: @answer.guess_percentage</span>
+                }
+            </div>
+            <div class="col-md-8">@Html.Raw(answer.body)</div>
+            <div class="col-sm-2">@HtmlHelpers.ConvertUnixTime(answer.creation_date)</div>
+        </div>
+    }
+    <br/>
+}
