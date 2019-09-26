@@ -57,7 +57,7 @@ namespace CodeChallenge.Helpers
                         {
                             AnswerID = g.AnswerID,
                             GuessCount = g.GuessCount,
-                            GuessPercentage = (g.GuessCount / totalGuesses) * 100
+                            GuessPercentage = ((decimal)g.GuessCount / totalGuesses) * 100
                         }).ToList();
                 }
             }catch(Exception ex)

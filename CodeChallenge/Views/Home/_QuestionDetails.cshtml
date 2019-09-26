@@ -17,15 +17,19 @@
     {
         <div class="row answer-row" id="@answer.answer_id" data-question="@Model.question_id">
             <div class="col-sm-2" id="result-@answer.answer_id">
-                @if(answer.selected_answer != null && answer.selected_answer.Value)
+                @if (answer.selected_answer != null && answer.selected_answer.Value)
                 {
-                    <span>Correct!</span>
-                }else if (answer.selected_answer != null && !answer.selected_answer.Value)
-                {
-                    <span>Incorrect!</span>
+                    if (answer.correct_answer.Value)
+                    {
+                        <span>Correct!</span>
+                    }
+                    else
+                    {
+                        <span>Incorrect!</span>
+                    }
                 }
 
-                @if(answer.selected_answer != null)
+                @if (answer.selected_answer != null)
                 {
                     <span>Guesses: @answer.guess_count</span>
                     <span>Percentage: @answer.guess_percentage</span>

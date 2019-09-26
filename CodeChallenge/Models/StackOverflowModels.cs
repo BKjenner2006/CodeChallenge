@@ -36,6 +36,7 @@ namespace CodeChallenge.Models
         public string body { get; set; }
         public long creation_date { get; set; } //dates in Unix Epoch time
         public bool? selected_answer { get; set; }
+        public bool? correct_answer { get; set; }
         public int guess_count { get; set; }
         public decimal guess_percentage { get; set; }
     }

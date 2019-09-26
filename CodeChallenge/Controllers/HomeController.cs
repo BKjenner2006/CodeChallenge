@@ -71,8 +71,9 @@ namespace CodeChallenge.Controllers
             foreach (var answer in result.items.FirstOrDefault().answers)
             {
                 answer.selected_answer = answer.answer_id == answerID;
-                answer.guess_count = guessResult.Answers.FirstOrDefault(a => a.AnswerID == answerID)?.GuessCount ?? 0;
-                answer.guess_percentage = guessResult.Answers.FirstOrDefault(a => a.AnswerID == answerID)?.GuessPercentage ?? 0;
+                answer.correct_answer = answer.answer_id == result.items.FirstOrDefault().accepted_answer_id;
+                answer.guess_count = guessResult.Answers.FirstOrDefault(a => a.AnswerID == answer.answer_id)?.GuessCount ?? 0;
+                answer.guess_percentage = guessResult.Answers.FirstOrDefault(a => a.AnswerID == answer.answer_id)?.GuessPercentage ?? 0;
             }
 
             return PartialView("_QuestionDetails", result.items.FirstOrDefault());
