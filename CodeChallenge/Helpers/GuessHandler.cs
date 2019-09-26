@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Configuration;
+using CodeChallenge.Models;
 
 namespace CodeChallenge.Helpers
 {
@@ -57,7 +58,7 @@ namespace CodeChallenge.Helpers
                         {
                             AnswerID = g.AnswerID,
                             GuessCount = g.GuessCount,
-                            GuessPercentage = ((decimal)g.GuessCount / totalGuesses) * 100
+                            GuessPercentage = ((decimal)g.GuessCount / totalGuesses)
                         }).ToList();
                 }
             }catch(Exception ex)
@@ -65,6 +66,35 @@ namespace CodeChallenge.Helpers
                 Console.WriteLine(ex.ToString());
             }
 
+
+            return result;
+        }
+
+        public StackOverflowSearchVM GetRecentGuesses()
+        {
+            StackOverflowSearchVM result = new StackOverflowSearchVM();
+
+            try
+            {
+                using (CodingChallengeEntities data = new CodingChallengeEntities())
+                {
+                    var guesses = data.GuessLogs.GroupBy(g => g.QuestionID).Select(grp => grp.FirstOrDefault()).ToList();
+
+                    result.items = new List<StackOverflowResultVM>();
+                    foreach(var guess in guesses)
+                    {
+                        result.items.Add(new StackOverflowResultVM()
+                        {
+                            question_id = guess.QuestionID,
+                            title = guess.QuestionText,
+                            creation_date = guess.QuestionDate
+                        });
+                    }
+                }
+            }catch(Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
 
             return result;
         }

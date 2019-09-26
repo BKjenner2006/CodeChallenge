@@ -18,13 +18,12 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                @Html.ActionLink("CodingChallenge", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
-                    <li>@Html.ActionLink("About", "About", "Home")</li>
-                    <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
+                    <li>@Html.ActionLink("New Questions", "Index", "Home")</li>
+                    <li>@Html.ActionLink("Previous Guesses", "Guesses", "Home")</li>
                 </ul>
             </div>
         </div>
@@ -43,16 +42,19 @@
         $(document).on("dblclick", ".answer-row", function () {
             var id = $(this).data("question");
             var answer = $(this).attr("id");
+            $(".selected-answer").val(false);
+            $("#" + answer).find(".selected-answer").val(true);
 
             $.ajax({
                 url: '@Url.Action("SubmitGuess", "Home")',
                 type: 'GET',
-                data: {
-                    questionID: id,
-                    answerID: answer,
-                    description: $("#" + id).data("title"),
-                    questionDate: $("#" + id).data("date")
-                },
+                data: $("#" + id + "-form").serialize(),
+                //data: {
+                //    questionID: id,
+                //    answerID: answer,
+                //    description: $("#" + id).data("title"),
+                //    questionDate: $("#" + id).data("date")
+                //},
                 success: function (result) {
                     $("#" + id).html(result).slideDown();
                 }

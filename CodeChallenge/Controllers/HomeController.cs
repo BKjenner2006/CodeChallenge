@@ -17,6 +17,7 @@ namespace CodeChallenge.Controllers
 {
     public class HomeController : Controller
     {
+        //Make sure the cookie is established before every request, need this for keeping track of user score
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {
             string userGuid = HttpContext.Request.Cookies.Get("userGuid")?.Value;
@@ -43,9 +44,9 @@ namespace CodeChallenge.Controllers
 
         public ActionResult Guesses()
         {
-            ViewData["Message"] = "Your application description page.";
+            GuessHandler handler = new GuessHandler();
 
-            StackOverflowSearchVM searchResult = new StackOverflowSearchVM();
+            StackOverflowSearchVM searchResult = handler.GetRecentGuesses();
 
             return View(searchResult);
         }
@@ -62,21 +63,28 @@ namespace CodeChallenge.Controllers
             return View();
         }
 
-        public async Task<ActionResult> SubmitGuess(int questionID, int answerID, string description, long questionDate)
+        //Submitting the question detail model to this action to maintain the randomized answer sort order
+        public async Task<ActionResult> SubmitGuess(StackOverflowQuestionVM vm)
         {
             GuessHandler guessHandler = new GuessHandler();
-            GuessResult guessResult = guessHandler.SubmitGuess(answerID, questionID, description, questionDate);
+            var answerID = vm.answers.FirstOrDefault(a => a.selected_answer == true).answer_id;
+            GuessResult guessResult = guessHandler.SubmitGuess(answerID, vm.question_id, vm.title, vm.creation_date);
 
-            StackOverflowDetailsVM result = await CallStackOverflow<StackOverflowDetailsVM>("questions", questionID.ToString(), "order=desc&sort=activity&site=stackoverflow&filter=!-*jbN-o8P3E5");
-            foreach (var answer in result.items.FirstOrDefault().answers)
+            StackOverflowDetailsVM result = await CallStackOverflow<StackOverflowDetailsVM>("questions", vm.question_id.ToString(), "order=desc&sort=activity&site=stackoverflow&filter=!-*jbN-o8P3E5");
+            var question = result.items.FirstOrDefault();
+            vm.body = question.body;
+
+            foreach (var answer in vm.answers)
             {
+                answer.body = question.answers.FirstOrDefault(a => a.answer_id == answer.answer_id).body;
+                answer.creation_date = question.answers.FirstOrDefault(a => a.answer_id == answer.answer_id).creation_date;
                 answer.selected_answer = answer.answer_id == answerID;
-                answer.correct_answer = answer.answer_id == result.items.FirstOrDefault().accepted_answer_id;
+                answer.correct_answer = answer.answer_id == question.accepted_answer_id;
                 answer.guess_count = guessResult.Answers.FirstOrDefault(a => a.AnswerID == answer.answer_id)?.GuessCount ?? 0;
                 answer.guess_percentage = guessResult.Answers.FirstOrDefault(a => a.AnswerID == answer.answer_id)?.GuessPercentage ?? 0;
             }
 
-            return PartialView("_QuestionDetails", result.items.FirstOrDefault());
+            return PartialView("_QuestionDetails", vm);
         }
 
         public async Task<ActionResult> LoadQuestionDetails(int questionID)

@@ -1,43 +1,73 @@
 ﻿@model CodeChallenge.Models.StackOverflowQuestionVM
 @using CodeChallenge.Helpers
 
-<div class="row">
-    <div class="col-sm-2"></div>
-    <div class="col-md-8">
-        @Html.Raw(Model.body)
-    </div>
-    <div class="col-sm-2"></div>
-</div>
-<hr/>
-<h1><b>Answers:</b></h1> double click an answer to vote
-
-@if (Model.answers != null && Model.answers.Count() > 0)
-{
-    foreach (var answer in Model.answers)
+@functions{
+    string GetResultClass(CodeChallenge.Models.StackOverflowAnswerVM answer)
     {
-        <div class="row answer-row" id="@answer.answer_id" data-question="@Model.question_id">
-            <div class="col-sm-2" id="result-@answer.answer_id">
-                @if (answer.selected_answer != null && answer.selected_answer.Value)
-                {
-                    if (answer.correct_answer.Value)
-                    {
-                        <span>Correct!</span>
-                    }
-                    else
-                    {
-                        <span>Incorrect!</span>
-                    }
-                }
+        string result = "";
+        if((answer.correct_answer.HasValue && answer.correct_answer.Value)||
+            (answer.selected_answer.HasValue && answer.selected_answer.Value))
+        {
+            if(answer.correct_answer.HasValue && answer.correct_answer.Value)
+            {
+                result = "correct-answer";
+            }
+            else
+            {
+                result = "incorrect-answer";
+            }
+        }
 
-                @if (answer.selected_answer != null)
-                {
-                    <span>Guesses: @answer.guess_count</span>
-                    <span>Percentage: @answer.guess_percentage</span>
-                }
-            </div>
-            <div class="col-md-8">@Html.Raw(answer.body)</div>
-            <div class="col-sm-2">@HtmlHelpers.ConvertUnixTime(answer.creation_date)</div>
-        </div>
+        return result;
     }
-    <br/>
+}
+
+@using (Html.BeginForm("SubmitGuess", "Home", FormMethod.Get, new { @id = Model.question_id + "-form" }))
+{
+    @Html.HiddenFor(m => Model.question_id)
+    @Html.HiddenFor(m => Model.title)
+    @Html.HiddenFor(m => Model.creation_date)
+    <div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-md-8">
+            @Html.Raw(Model.body)
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+    <hr />
+    <h1><b>Answers:</b> double click to vote </h1>
+
+    if(Model.answers != null && Model.answers.Count() > 0)
+    {
+            for (int i = 0; i < Model.answers.Count(); i++)
+            {
+                <div class="row answer-row @GetResultClass(Model.answers[i])" id="@Model.answers[i].answer_id" data-question="@Model.question_id">
+                    @Html.HiddenFor(m => Model.answers[i].answer_id)
+                    @Html.HiddenFor(m => m.answers[i].selected_answer, new { @class = "selected-answer" })
+                    <div class="col-sm-2" id="result-@Model.answers[i].answer_id">
+                        @if (Model.answers[i].selected_answer != null && Model.answers[i].selected_answer.Value)
+                        {
+                            if (Model.answers[i].correct_answer.Value)
+                            {
+                                <span>Correct!</span>
+                            }
+                            else
+                            {
+                                <span>Incorrect!</span>
+                            }
+                            <br/>
+                        }
+
+                        @if (Model.answers[i].selected_answer != null)
+                        {
+                            <span>Guesses: @Model.answers[i].guess_count</span>
+                            <span>Percentage: @String.Format("{0:P2}", Model.answers[i].guess_percentage)</span>
+                        }
+                    </div>
+                    <div class="col-md-8">@Html.Raw(Model.answers[i].body)</div>
+                    <div class="col-sm-2">@HtmlHelpers.ConvertUnixTime(Model.answers[i].creation_date)</div>
+                </div>
+            }
+    <br />
+    }
 }

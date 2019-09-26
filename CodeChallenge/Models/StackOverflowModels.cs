@@ -26,6 +26,7 @@ namespace CodeChallenge.Models
         public int question_id { get; set; }
         public int accepted_answer_id { get; set; }
         public List<StackOverflowAnswerVM> answers { get; set; }
+        public string title { get; set; }
         public string body { get; set; }
         public long creation_date { get; set; } //Dates in Unix Epoch time
     }
