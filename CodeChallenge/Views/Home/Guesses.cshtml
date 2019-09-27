@@ -5,45 +5,24 @@
     ViewData["Title"] = "StackOverflow Coding Challenge";
 }
 
-<div style="width:100%; text-align:center">
+<div class="header">
     <h1>StackOverflow Coding Challenge</h1>
     <h2>Previous Guesses</h2>
 </div>
 
-<div style="width:1000px; margin:auto;">
+<div class="question-container">
     @if (Model.items != null && Model.items.Count() > 0)
     {
         foreach (var item in Model.items)
         {
-            <div class="row" style=" border-top: 1px solid black;">
-                <div class="col-sm-2"><a class="view-details" data-id="@item.question_id">View</a></div>
+            <div class="row question-row">
+                <div class="col-sm-1"><a class="view-details" data-id="@item.question_id">View</a></div>
                 <div class="col-md-8">@Html.Raw(item.title)</div>
-                <div class="col-sm-2">@HtmlHelpers.ConvertUnixTime(item.creation_date)</div>
+                <div class="col-sm-3">@HtmlHelpers.ConvertUnixTime(item.creation_date)</div>
             </div>
-            <div id="@item.question_id" class="row" style="display:none; border:1px solid black;">
+            <div id="@item.question_id" class="row question-details">
 
             </div>
         }
     }
 </div>
-
-<script type="text/javascript">
-    $(document).on("click", ".view-details", function () {
-        var id = $(this).data("id");
-
-        if ($("#" + id).is(":visible")) {
-            $("#" + id).slideUp();
-            $("a[data-id=" + id + "]").text("View");
-        } else {
-            $.ajax({
-                url: '@Url.Action("LoadQuestionDetails", "Home")',
-                type: 'GET',
-                data: { questionID: id },
-                success: function (result) {
-                    $("#" + id).html(result).slideDown();
-                    $("a[data-id=" + id + "]").text("Collapse");
-                }
-            })
-        }
-    })
-</script>

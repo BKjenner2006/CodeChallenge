@@ -40,3 +40,22 @@ textarea {
 .answer-row.incorrect-answer {
     background-color: rgba(255, 0, 0, 0.2);
 }
+
+.header {
+    width: 100%;
+    text-align: center;
+}
+
+.question-container {
+    width: 1000px;
+    margin: auto;
+}
+
+.question-row {
+    border-top: 1px solid black;
+}
+
+.question-details {
+    display: none;
+    border: 1px solid black;
+}

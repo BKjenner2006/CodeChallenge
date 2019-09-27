@@ -183,6 +183,8 @@
     <Content Include="CodingChallengeData.edmx.diagram">
       <DependentUpon>CodingChallengeData.edmx</DependentUpon>
     </Content>
+    <None Include="Properties\PublishProfiles\accuchallenge - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\accuchallenge - Web Deploy.pubxml" />
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.3.1.js" />
     <Content Include="Scripts\jquery-3.3.1.min.js" />

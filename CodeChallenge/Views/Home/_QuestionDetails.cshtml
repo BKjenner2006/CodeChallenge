@@ -25,7 +25,7 @@
 @using (Html.BeginForm("SubmitGuess", "Home", FormMethod.Get, new { @id = Model.question_id + "-form" }))
 {
     @Html.HiddenFor(m => Model.question_id)
-    @Html.HiddenFor(m => Model.title)
+    <input name="title" id="title" type="hidden" value="@Html.Raw(Model.title)"> //Title needs to be in a raw text format to post back correctly 
     @Html.HiddenFor(m => Model.creation_date)
     <div class="row">
         <div class="col-sm-2"></div>
@@ -43,7 +43,7 @@
             {
                 <div class="row answer-row @GetResultClass(Model.answers[i])" id="@Model.answers[i].answer_id" data-question="@Model.question_id">
                     @Html.HiddenFor(m => Model.answers[i].answer_id)
-                    @Html.HiddenFor(m => m.answers[i].selected_answer, new { @class = "selected-answer" })
+                    @Html.HiddenFor(m => Model.answers[i].selected_answer, new { @class = "selected-answer" })
                     <div class="col-sm-2" id="result-@Model.answers[i].answer_id">
                         @if (Model.answers[i].selected_answer != null && Model.answers[i].selected_answer.Value)
                         {

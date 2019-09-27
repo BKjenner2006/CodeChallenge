@@ -25,20 +25,48 @@
                     <li>@Html.ActionLink("New Questions", "Index", "Home")</li>
                     <li>@Html.ActionLink("Previous Guesses", "Guesses", "Home")</li>
                 </ul>
+                <div id="score-container" style="float:right; padding-top:15px; padding-bottom:15px; color: white;">
+
+                </div>
             </div>
+
         </div>
     </div>
     <div class="container body-content">
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
+            <p>&copy; @DateTime.Now.Year - Coding Challenge Developed By Britton Kjenner</p>
         </footer>
     </div>
 
     @RenderSection("scripts", required: false)
 
     <script type="text/javascript">
+        function getScoreCookie(){
+            var cookieVals = document.cookie.split(";");
+            var grade = "";
+            var correct = "";
+            var total = "";
+
+            for (var i = 0; i < cookieVals.length; i++) {
+                if (cookieVals[i].indexOf("grade=") >= 0) {
+                    grade = cookieVals[i].substring(cookieVals[i].indexOf("=") + 1, cookieVals[i].length);
+                } else if (cookieVals[i].indexOf("correct") >= 0) {
+                    correct = cookieVals[i].substring(cookieVals[i].indexOf("=") + 1, cookieVals[i].length);
+                } else if (cookieVals[i].indexOf("total") >= 0) {
+                    total = cookieVals[i].substring(cookieVals[i].indexOf("=") + 1, cookieVals[i].length);
+                }
+            }
+
+            return "Score: " + correct + "/" + total + " - " + grade;
+        }
+
+        $(document).ready(function () {
+            var score = getScoreCookie();
+            $("#score-container").html(score);
+        });
+
         $(document).on("dblclick", ".answer-row", function () {
             var id = $(this).data("question");
             var answer = $(this).attr("id");
@@ -49,16 +77,31 @@
                 url: '@Url.Action("SubmitGuess", "Home")',
                 type: 'GET',
                 data: $("#" + id + "-form").serialize(),
-                //data: {
-                //    questionID: id,
-                //    answerID: answer,
-                //    description: $("#" + id).data("title"),
-                //    questionDate: $("#" + id).data("date")
-                //},
                 success: function (result) {
                     $("#" + id).html(result).slideDown();
+                    var score = getScoreCookie();
+                    $("#score-container").html(score);
                 }
             })
+        })
+
+        $(document).on("click", ".view-details", function () {
+            var id = $(this).data("id");
+
+            if ($("#" + id).is(":visible")) {
+                $("#" + id).slideUp();
+                $("a[data-id=" + id + "]").text("View");
+            } else {
+                $.ajax({
+                    url: '@Url.Action("LoadQuestionDetails", "Home")',
+                    type: 'GET',
+                    data: { questionID: id },
+                    success: function (result) {
+                        $("#" + id).html(result).slideDown();
+                        $("a[data-id=" + id + "]").text("Collapse");
+                    }
+                })
+            }
         })
     </script>
 </body>

@@ -20,17 +20,29 @@ namespace CodeChallenge.Controllers
         //Make sure the cookie is established before every request, need this for keeping track of user score
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {
-            string userGuid = HttpContext.Request.Cookies.Get("userGuid")?.Value;
+            string grade = HttpContext.Request.Cookies.Get("grade")?.Value;
 
-            if (String.IsNullOrEmpty(userGuid))
+            if (String.IsNullOrEmpty(grade))
             {
-                HttpCookie cookie = new HttpCookie("userGuid");
+                HttpCookie cookie = new HttpCookie("grade");
                 cookie.Expires = DateTime.UtcNow.AddMonths(1);
-                //cookie would not save when setting domain on localhost
-                //options.Domain = Request.Host.ToUriComponent();
                 cookie.Path = "/";
                 cookie.HttpOnly = false;
-                cookie.Value = Guid.NewGuid().ToString();
+                cookie.Value = "N/A";
+                Response.Cookies.Add(cookie);
+
+                cookie = new HttpCookie("total");
+                cookie.Expires = DateTime.UtcNow.AddMonths(1);
+                cookie.Path = "/";
+                cookie.HttpOnly = false;
+                cookie.Value = "0";
+                Response.Cookies.Add(cookie);
+
+                cookie = new HttpCookie("correct");
+                cookie.Expires = DateTime.UtcNow.AddMonths(1);
+                cookie.Path = "/";
+                cookie.HttpOnly = false;
+                cookie.Value = "0";
                 Response.Cookies.Add(cookie);
             }
         }
@@ -84,7 +96,52 @@ namespace CodeChallenge.Controllers
                 answer.guess_percentage = guessResult.Answers.FirstOrDefault(a => a.AnswerID == answer.answer_id)?.GuessPercentage ?? 0;
             }
 
+            //Update score
+            int total = 0, correct = 0;
+#pragma warning disable CS0168 // The variable 'grade' is declared but never used
+            string grade;
+#pragma warning restore CS0168 // The variable 'grade' is declared but never used
+            if (Int32.TryParse(HttpContext.Request.Cookies.Get("total")?.Value, out total))
+            {
+                total++;
+                Response.Cookies["total"].Value = total.ToString();
+
+
+                if (Int32.TryParse(HttpContext.Request.Cookies.Get("correct")?.Value, out correct))
+                {
+                    if (vm.answers.Where(a => a.selected_answer.Value && a.correct_answer.Value).Count() > 0)
+                    {
+                        correct++;
+                        Response.Cookies["correct"].Value = correct.ToString();
+                    }
+                }
+
+                Response.Cookies["grade"].Value = GetLetterGrade(correct, total);
+            }
+
             return PartialView("_QuestionDetails", vm);
+        }
+
+        private string GetLetterGrade(int correct, int total)
+        {
+            string result = "N/A";
+
+            if(total > 0)
+            {
+                var percent = (decimal)correct / total;
+                if (percent >= .9m)
+                    result = "A";
+                else if (percent >= .8m)
+                    result = "B";
+                else if (percent >= .7m)
+                    result = "C";
+                else if (percent >= .6m)
+                    result = "D";
+                else
+                    result = "F";
+            }
+
+            return result;
         }
 
         public async Task<ActionResult> LoadQuestionDetails(int questionID)
